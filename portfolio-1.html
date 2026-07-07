@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pranav — Portfolio</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --blue: #00d4ff;
+    --purple: #b44dff;
+    --blue-dim: rgba(0,212,255,0.15);
+    --purple-dim: rgba(180,77,255,0.15);
+    --blue-glow: 0 0 20px rgba(0,212,255,0.6), 0 0 60px rgba(0,212,255,0.2);
+    --purple-glow: 0 0 20px rgba(180,77,255,0.6), 0 0 60px rgba(180,77,255,0.2);
+    --bg: #050810;
+    --bg2: #080d1a;
+    --glass: rgba(255,255,255,0.04);
+    --glass-border: rgba(255,255,255,0.08);
+    --text: #e8eaf6;
+    --text-dim: rgba(232,234,246,0.55);
+  }
+
+  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    overflow-x: hidden;
+    line-height: 1.6;
+  }
+
+  /* ─── CANVAS ─── */
+  #bg-canvas {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  /* ─── NAV ─── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 2.5rem;
+    background: rgba(5,8,16,0.75);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--glass-border);
+  }
+
+  .nav-logo {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    background: linear-gradient(90deg, var(--blue), var(--purple));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: 0.08em;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 2rem;
+    list-style: none;
+  }
+
+  .nav-links a {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    text-decoration: none;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    transition: color 0.3s;
+  }
+
+  .nav-links a:hover { color: var(--blue); }
+
+  /* ─── SECTIONS ─── */
+  section {
+    position: relative;
+    z-index: 1;
+    padding: 6rem 2rem;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .section-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--blue);
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+    opacity: 0.8;
+  }
+
+  h2.section-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(1.6rem, 4vw, 2.4rem);
+    font-weight: 700;
+    margin-bottom: 3rem;
+    background: linear-gradient(120deg, #fff 40%, var(--purple));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  /* ─── HERO ─── */
+  #hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-top: 5rem;
+    max-width: 1100px;
+  }
+
+  .hero-eyebrow {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--blue);
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.3s forwards;
+  }
+
+  .hero-name {
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(2.8rem, 8vw, 6rem);
+    font-weight: 900;
+    line-height: 1.05;
+    letter-spacing: -0.01em;
+    background: linear-gradient(135deg, #ffffff 0%, var(--blue) 50%, var(--purple) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.5s forwards;
+  }
+
+  .hero-title {
+    font-size: clamp(1rem, 2.5vw, 1.4rem);
+    color: var(--text-dim);
+    font-weight: 500;
+    margin-top: 1rem;
+    letter-spacing: 0.05em;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.7s forwards;
+  }
+
+  .hero-title span {
+    color: var(--purple);
+    font-family: 'Share Tech Mono', monospace;
+  }
+
+  /* Pulsing rings */
+  .hero-rings {
+    position: absolute;
+    right: 5%;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 340px;
+    height: 340px;
+    pointer-events: none;
+    opacity: 0;
+    animation: fadeIn 1s 1s forwards;
+  }
+
+  .ring {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 1px solid;
+    animation: ringPulse 3s ease-in-out infinite;
+  }
+
+  .ring:nth-child(1) { border-color: rgba(0,212,255,0.6); animation-delay: 0s; }
+  .ring:nth-child(2) { border-color: rgba(180,77,255,0.4); animation-delay: 0.6s; transform: scale(1.15); }
+  .ring:nth-child(3) { border-color: rgba(0,212,255,0.2); animation-delay: 1.2s; transform: scale(1.35); }
+  .ring:nth-child(4) { border-color: rgba(180,77,255,0.1); animation-delay: 1.8s; transform: scale(1.55); }
+
+  .ring-core {
+    position: absolute;
+    inset: 20%;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(0,212,255,0.15) 0%, rgba(180,77,255,0.08) 60%, transparent 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--blue);
+    letter-spacing: 0.15em;
+    text-align: center;
+    line-height: 2;
+  }
+
+  /* Contact chips */
+  .hero-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 2.5rem;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.9s forwards;
+  }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.45rem 1rem;
+    border-radius: 2rem;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.78rem;
+    border: 1px solid var(--glass-border);
+    background: var(--glass);
+    backdrop-filter: blur(8px);
+    text-decoration: none;
+    color: var(--text-dim);
+    transition: all 0.3s;
+    letter-spacing: 0.05em;
+  }
+
+  .chip:hover {
+    border-color: var(--blue);
+    color: var(--blue);
+    box-shadow: var(--blue-glow);
+    background: var(--blue-dim);
+  }
+
+  .chip .icon { font-size: 0.9rem; }
+
+  /* ─── GLASS CARD ─── */
+  .glass-card {
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 1.75rem;
+    backdrop-filter: blur(12px);
+    transition: all 0.4s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .glass-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 16px;
+    background: linear-gradient(135deg, var(--blue-dim), transparent 60%);
+    opacity: 0;
+    transition: opacity 0.4s;
+  }
+
+  .glass-card:hover {
+    border-color: rgba(0,212,255,0.3);
+    box-shadow: var(--blue-glow);
+    transform: translateY(-4px);
+  }
+
+  .glass-card:hover::before { opacity: 1; }
+
+  .card-icon {
+    font-size: 1.8rem;
+    margin-bottom: 0.75rem;
+    position: relative;
+  }
+
+  .card-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--blue);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+    position: relative;
+  }
+
+  .card-body {
+    font-size: 1rem;
+    color: var(--text-dim);
+    font-weight: 400;
+    line-height: 1.65;
+    position: relative;
+  }
+
+  /* ─── ABOUT ─── */
+  .about-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 1.25rem;
+  }
+
+  /* ─── SKILLS ─── */
+  .skills-group { margin-bottom: 2.5rem; }
+
+  .skills-group-title {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--purple);
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    opacity: 0.9;
+  }
+
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+  }
+
+  .tag {
+    padding: 0.35rem 0.9rem;
+    border-radius: 6px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.78rem;
+    letter-spacing: 0.05em;
+    border: 1px solid;
+    transition: all 0.3s;
+    cursor: default;
+  }
+
+  .tag.tech {
+    border-color: rgba(0,212,255,0.3);
+    color: var(--blue);
+    background: rgba(0,212,255,0.06);
+  }
+
+  .tag.tech:hover {
+    background: rgba(0,212,255,0.15);
+    box-shadow: 0 0 12px rgba(0,212,255,0.3);
+  }
+
+  .tag.tools {
+    border-color: rgba(180,77,255,0.35);
+    color: var(--purple);
+    background: rgba(180,77,255,0.06);
+  }
+
+  .tag.tools:hover {
+    background: rgba(180,77,255,0.15);
+    box-shadow: 0 0 12px rgba(180,77,255,0.3);
+  }
+
+  .tag.soft {
+    border-color: rgba(255,255,255,0.15);
+    color: var(--text-dim);
+    background: rgba(255,255,255,0.04);
+  }
+
+  .tag.soft:hover {
+    border-color: rgba(255,255,255,0.3);
+    color: var(--text);
+  }
+
+  /* ─── PROJECTS ─── */
+  .projects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .project-card {
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 1.75rem;
+    backdrop-filter: blur(12px);
+    transition: all 0.4s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .project-card::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--blue), var(--purple));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s;
+  }
+
+  .project-card:hover {
+    border-color: rgba(180,77,255,0.3);
+    box-shadow: var(--purple-glow);
+    transform: translateY(-4px);
+  }
+
+  .project-card:hover::after { transform: scaleX(1); }
+
+  .project-number {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--purple);
+    letter-spacing: 0.2em;
+    opacity: 0.7;
+    margin-bottom: 0.75rem;
+  }
+
+  .project-name {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 0.6rem;
+  }
+
+  .project-desc {
+    font-size: 0.95rem;
+    color: var(--text-dim);
+    line-height: 1.6;
+    margin-bottom: 1.2rem;
+  }
+
+  .project-tech {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-bottom: 1.2rem;
+  }
+
+  .project-tag {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--blue);
+    background: var(--blue-dim);
+    border-radius: 4px;
+    padding: 0.2rem 0.6rem;
+  }
+
+  .project-links {
+    display: flex;
+    gap: 1rem;
+  }
+
+  .project-link {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--text-dim);
+    text-decoration: none;
+    letter-spacing: 0.05em;
+    transition: color 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+
+  .project-link:hover { color: var(--purple); }
+
+  /* ─── CONTACT ─── */
+  .contact-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.25rem;
+  }
+
+  .contact-card {
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 1.75rem;
+    text-align: center;
+    text-decoration: none;
+    display: block;
+    transition: all 0.4s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .contact-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 16px;
+    opacity: 0;
+    transition: opacity 0.4s;
+  }
+
+  .contact-card.email::before { background: radial-gradient(circle at 50% 50%, rgba(0,212,255,0.12), transparent 70%); }
+  .contact-card.insta::before { background: radial-gradient(circle at 50% 50%, rgba(255,100,130,0.12), transparent 70%); }
+  .contact-card.phone::before { background: radial-gradient(circle at 50% 50%, rgba(100,255,180,0.10), transparent 70%); }
+  .contact-card.blood::before { background: radial-gradient(circle at 50% 50%, rgba(255,60,80,0.10), transparent 70%); }
+
+  .contact-card:hover {
+    transform: translateY(-4px);
+  }
+
+  .contact-card.email:hover  { border-color: rgba(0,212,255,0.4); box-shadow: var(--blue-glow); }
+  .contact-card.insta:hover  { border-color: rgba(255,100,130,0.4); box-shadow: 0 0 20px rgba(255,100,130,0.4); }
+  .contact-card.phone:hover  { border-color: rgba(100,255,180,0.4); box-shadow: 0 0 20px rgba(100,255,180,0.4); }
+  .contact-card.blood:hover  { border-color: rgba(255,60,80,0.4); box-shadow: 0 0 20px rgba(255,60,80,0.4); }
+
+  .contact-card:hover::before { opacity: 1; }
+
+  .contact-icon { font-size: 2rem; margin-bottom: 0.75rem; position: relative; }
+
+  .contact-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    margin-bottom: 0.4rem;
+    position: relative;
+  }
+
+  .contact-value {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text);
+    position: relative;
+  }
+
+  /* ─── DIVIDER ─── */
+  .divider {
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--blue), var(--purple), transparent);
+    opacity: 0.25;
+    margin: 2rem 0;
+    position: relative;
+    z-index: 1;
+    max-width: 1100px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* ─── FOOTER ─── */
+  footer {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: 2rem;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    opacity: 0.5;
+    letter-spacing: 0.1em;
+  }
+
+  /* ─── REVEAL ANIMATION ─── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ─── LIGHTNING ─── */
+  .lightning {
+    position: fixed;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0;
+    animation: lightningFlash 8s infinite;
+  }
+
+  .lightning:nth-child(2) { animation-delay: 4s; right: 10%; }
+
+  /* ─── KEYFRAMES ─── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+
+  @keyframes ringPulse {
+    0%, 100% { opacity: 0.6; transform: scale(1); }
+    50%       { opacity: 1;   transform: scale(1.04); }
+  }
+
+  @keyframes lightningFlash {
+    0%, 89%, 91%, 93%, 100% { opacity: 0; }
+    90%, 92%                 { opacity: 0.7; }
+  }
+
+  /* ─── MOBILE ─── */
+  @media (max-width: 768px) {
+    nav { padding: 1rem 1.25rem; }
+    .nav-links { gap: 1.2rem; }
+    .nav-links a { font-size: 0.72rem; }
+    section { padding: 4rem 1.25rem; }
+    .hero-rings { display: none; }
+    .hero-name { font-size: 2.6rem; }
+    .about-grid { grid-template-columns: 1fr; }
+    .contact-grid { grid-template-columns: 1fr 1fr; }
+  }
+
+  @media (max-width: 480px) {
+    .contact-grid { grid-template-columns: 1fr; }
+    .nav-links { gap: 0.8rem; }
+    .nav-links a { letter-spacing: 0.05em; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="bg-canvas"></canvas>
+
+<!-- LIGHTNING SVG bolts -->
+<svg class="lightning" style="top:15%;left:8%;width:30px;height:80px;" viewBox="0 0 30 80">
+  <polyline points="18,0 8,35 18,35 6,80" fill="none" stroke="url(#lb1)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <defs><linearGradient id="lb1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#00d4ff"/><stop offset="100%" stop-color="#b44dff"/></linearGradient></defs>
+</svg>
+<svg class="lightning" style="top:25%;right:8%;width:24px;height:65px;" viewBox="0 0 24 65">
+  <polyline points="15,0 6,28 15,28 4,65" fill="none" stroke="url(#lb2)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <defs><linearGradient id="lb2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#b44dff"/><stop offset="100%" stop-color="#00d4ff"/></linearGradient></defs>
+</svg>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">PRANAV.DEV</div>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#skills">Skills</a></li>
+    <li><a href="#projects">Projects</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section id="hero" style="position:relative;z-index:1;max-width:1100px;">
+  <div class="hero-eyebrow">// Hello, World — Welcome to my space</div>
+  <h1 class="hero-name">Pranav</h1>
+  <p class="hero-title">Full Stack Developer &nbsp;·&nbsp; <span>UI/UX Designer</span> &nbsp;·&nbsp; Builder</p>
+  <div class="hero-chips">
+    <a href="mailto:yourmail@gmail.com" class="chip"><span class="icon">✉</span> yourmail@gmail.com</a>
+    <a href="https://instagram.com/yourhandle" class="chip" target="_blank"><span class="icon">◈</span> @yourhandle</a>
+    <a href="tel:+919999999999" class="chip"><span class="icon">◉</span> +91 99999 99999</a>
+    <span class="chip"><span class="icon">⬡</span> Chennai, India</span>
+  </div>
+
+  <!-- Pulsing rings (right side) -->
+  <div class="hero-rings" aria-hidden="true">
+    <div class="ring"></div>
+    <div class="ring"></div>
+    <div class="ring"></div>
+    <div class="ring"></div>
+    <div class="ring-core">PORTFOLIO<br>2025</div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ABOUT -->
+<section id="about">
+  <p class="section-label">// 01 — About</p>
+  <h2 class="section-title">Who I Am</h2>
+  <div class="about-grid">
+    <div class="glass-card reveal">
+      <div class="card-icon">⚡</div>
+      <div class="card-title">The Builder</div>
+      <div class="card-body">I'm a developer from Chennai who loves turning ideas into real, working products. Clean code and slick interfaces — that's the goal every time.</div>
+    </div>
+    <div class="glass-card reveal">
+      <div class="card-icon">🎯</div>
+      <div class="card-title">The Goal</div>
+      <div class="card-body">Build things that matter — products people actually use and enjoy. I'm chasing that sweet spot where good engineering meets great design.</div>
+    </div>
+    <div class="glass-card reveal">
+      <div class="card-icon">🔥</div>
+      <div class="card-title">The Passion</div>
+      <div class="card-body">I live for the moment when code just works. Open source, side projects, hackathons — always building something new on weekends.</div>
+    </div>
+    <div class="glass-card reveal">
+      <div class="card-icon">🚀</div>
+      <div class="card-title">The Drive</div>
+      <div class="card-body">Every problem is a puzzle. I don't stop until the solution feels right — not just technically, but in the way it feels to use it.</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- SKILLS -->
+<section id="skills">
+  <p class="section-label">// 02 — Skills</p>
+  <h2 class="section-title">Tech Arsenal</h2>
+
+  <div class="skills-group reveal">
+    <div class="skills-group-title">⚡ Technologies</div>
+    <div class="tags">
+      <span class="tag tech">JavaScript</span>
+      <span class="tag tech">TypeScript</span>
+      <span class="tag tech">React.js</span>
+      <span class="tag tech">Node.js</span>
+      <span class="tag tech">Python</span>
+      <span class="tag tech">HTML5</span>
+      <span class="tag tech">CSS3</span>
+      <span class="tag tech">Next.js</span>
+      <span class="tag tech">MongoDB</span>
+      <span class="tag tech">SQL</span>
+    </div>
+  </div>
+
+  <div class="skills-group reveal">
+    <div class="skills-group-title">🛠 Tools & Platforms</div>
+    <div class="tags">
+      <span class="tag tools">VS Code</span>
+      <span class="tag tools">Git & GitHub</span>
+      <span class="tag tools">Figma</span>
+      <span class="tag tools">Docker</span>
+      <span class="tag tools">Vercel</span>
+      <span class="tag tools">Firebase</span>
+      <span class="tag tools">Postman</span>
+      <span class="tag tools">Linux</span>
+    </div>
+  </div>
+
+  <div class="skills-group reveal">
+    <div class="skills-group-title">✨ Soft Skills</div>
+    <div class="tags">
+      <span class="tag soft">Problem Solving</span>
+      <span class="tag soft">Team Collaboration</span>
+      <span class="tag soft">Fast Learner</span>
+      <span class="tag soft">Communication</span>
+      <span class="tag soft">Time Management</span>
+      <span class="tag soft">Creativity</span>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- PROJECTS -->
+<section id="projects">
+  <p class="section-label">// 03 — Projects</p>
+  <h2 class="section-title">What I've Built</h2>
+  <div class="projects-grid">
+
+    <div class="project-card reveal">
+      <div class="project-number">PROJECT_01</div>
+      <div class="project-name">Project Alpha</div>
+      <div class="project-desc">A full-stack web app that does something really cool. Built during a hackathon in 48 hours. Users loved it. Replace this with your real project.</div>
+      <div class="project-tech">
+        <span class="project-tag">React</span>
+        <span class="project-tag">Node.js</span>
+        <span class="project-tag">MongoDB</span>
+      </div>
+      <div class="project-links">
+        <a href="#" class="project-link">↗ Live Demo</a>
+        <a href="#" class="project-link">⌥ GitHub</a>
+      </div>
+    </div>
+
+    <div class="project-card reveal">
+      <div class="project-number">PROJECT_02</div>
+      <div class="project-name">Project Beta</div>
+      <div class="project-desc">An automation tool that saves people hours of manual work. Clean API design, fast performance, real impact. Swap with your actual project here.</div>
+      <div class="project-tech">
+        <span class="project-tag">Python</span>
+        <span class="project-tag">FastAPI</span>
+        <span class="project-tag">Docker</span>
+      </div>
+      <div class="project-links">
+        <a href="#" class="project-link">↗ Live Demo</a>
+        <a href="#" class="project-link">⌥ GitHub</a>
+      </div>
+    </div>
+
+    <div class="project-card reveal">
+      <div class="project-number">PROJECT_03</div>
+      <div class="project-name">Project Gamma</div>
+      <div class="project-desc">A mobile-first UI system with custom components and a design system built from scratch. Consistent, accessible, and easy to extend.</div>
+      <div class="project-tech">
+        <span class="project-tag">Figma</span>
+        <span class="project-tag">Next.js</span>
+        <span class="project-tag">Tailwind</span>
+      </div>
+      <div class="project-links">
+        <a href="#" class="project-link">↗ Live Demo</a>
+        <a href="#" class="project-link">⌥ GitHub</a>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- CONTACT -->
+<section id="contact">
+  <p class="section-label">// 04 — Contact</p>
+  <h2 class="section-title">Let's Connect</h2>
+  <div class="contact-grid">
+    <a href="mailto:yourmail@gmail.com" class="contact-card email reveal">
+      <div class="contact-icon">✉</div>
+      <div class="contact-label">Email</div>
+      <div class="contact-value">yourmail@gmail.com</div>
+    </a>
+    <a href="https://instagram.com/yourhandle" target="_blank" class="contact-card insta reveal">
+      <div class="contact-icon">◈</div>
+      <div class="contact-label">Instagram</div>
+      <div class="contact-value">@yourhandle</div>
+    </a>
+    <a href="tel:+919999999999" class="contact-card phone reveal">
+      <div class="contact-icon">◉</div>
+      <div class="contact-label">Phone</div>
+      <div class="contact-value">+91 99999 99999</div>
+    </a>
+    <div class="contact-card blood reveal" style="cursor:default;">
+      <div class="contact-icon">🩸</div>
+      <div class="contact-label">Blood Group</div>
+      <div class="contact-value">O+</div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  &lt;/&gt; &nbsp; Built with 💙 &amp; ⚡ &nbsp; · &nbsp; Pranav &nbsp; · &nbsp; 2025
+</footer>
+
+<!-- SCRIPTS -->
+<script>
+// ─── PARTICLE CANVAS ───
+const canvas = document.getElementById('bg-canvas');
+const ctx = canvas.getContext('2d');
+let W, H, particles = [];
+
+function resize() {
+  W = canvas.width = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+}
+resize();
+window.addEventListener('resize', resize);
+
+const PARTICLE_COUNT = 60;
+const BLUE = '0,212,255';
+const PURPLE = '180,77,255';
+
+class Particle {
+  constructor() { this.reset(); }
+  reset() {
+    this.x = Math.random() * W;
+    this.y = Math.random() * H;
+    this.vx = (Math.random() - 0.5) * 0.4;
+    this.vy = (Math.random() - 0.5) * 0.4;
+    this.r = Math.random() * 1.5 + 0.5;
+    this.color = Math.random() > 0.5 ? BLUE : PURPLE;
+  }
+  update() {
+    this.x += this.vx;
+    this.y += this.vy;
+    if (this.x < 0 || this.x > W || this.y < 0 || this.y > H) this.reset();
+  }
+  draw() {
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(${this.color},0.7)`;
+    ctx.fill();
+  }
+}
+
+for (let i = 0; i < PARTICLE_COUNT; i++) particles.push(new Particle());
+
+function drawLines() {
+  const MAX_DIST = 120;
+  for (let i = 0; i < particles.length; i++) {
+    for (let j = i + 1; j < particles.length; j++) {
+      const dx = particles[i].x - particles[j].x;
+      const dy = particles[i].y - particles[j].y;
+      const dist = Math.sqrt(dx*dx + dy*dy);
+      if (dist < MAX_DIST) {
+        const alpha = (1 - dist / MAX_DIST) * 0.25;
+        ctx.beginPath();
+        ctx.moveTo(particles[i].x, particles[i].y);
+        ctx.lineTo(particles[j].x, particles[j].y);
+        ctx.strokeStyle = `rgba(${particles[i].color},${alpha})`;
+        ctx.lineWidth = 0.6;
+        ctx.stroke();
+      }
+    }
+  }
+}
+
+function animate() {
+  ctx.clearRect(0, 0, W, H);
+  particles.forEach(p => { p.update(); p.draw(); });
+  drawLines();
+  requestAnimationFrame(animate);
+}
+animate();
+
+// ─── SCROLL REVEAL ───
+const reveals = document.querySelectorAll('.reveal');
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach((entry, i) => {
+    if (entry.isIntersecting) {
+      setTimeout(() => entry.target.classList.add('visible'), i * 80);
+    }
+  });
+}, { threshold: 0.12 });
+reveals.forEach(el => observer.observe(el));
+</script>
+
+</body>
+</html>
